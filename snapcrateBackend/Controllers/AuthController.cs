@@ -30,7 +30,15 @@ namespace snapcrateBackend.Controllers
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
             var user = await _userManager.FindByNameAsync(model.Username);
-            Console.WriteLine(user.Email);
+            if(user == null)
+            {
+                return Ok(new
+                {
+                    status = "USER_NOT_FOUND",
+                    token = "",
+                    expiration = "" 
+                });
+            }
             if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
             {
                 var authClaims = new List<Claim>
@@ -43,11 +51,17 @@ namespace snapcrateBackend.Controllers
 
                 return Ok(new
                 {
+                    status = "SUCCESS",
                     token = new JwtSecurityTokenHandler().WriteToken(token),
                     expiration = token.ValidTo
                 });
             }
-            return Unauthorized();
+                return Ok(new
+                {
+                    status = "INCORRECT_PASSWORD",
+                    token = "",
+                    expiration = "" 
+                });
         }
         [HttpPost]
         [Route("register")]
