@@ -14,5 +14,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: Docker Login
+      env:
+        DOCKER_USER: ${{secrets.DOCKER_USER}}
+        DOCKER_PASS: ${{secrets.DOCKER_PASS}}
+      run: |
+        docker login -u $DOCKER_USER -p $DOCKER_PASS  
     - name: Build the Docker image
       run: docker build -t gokuldp/snapcrate-backend -f snapcrateBackend/Dockerfile .
+    - name: Push docker image
+      run: docker push gokuldp/snapcrate-backend
