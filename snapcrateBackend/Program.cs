@@ -14,14 +14,19 @@ namespace snapcrateBackend
         {
             var builder = WebApplication.CreateBuilder(args);
             ConfigurationManager configuration = builder.Configuration;
-
+            configuration.AddEnvironmentVariables();
             // Add services to the container.
-
+            string connString = configuration.GetConnectionString("ConnStr");
+            string envConnString = Environment.GetEnvironmentVariable("ConnStr");
+            if(envConnString != null){
+                Console.WriteLine("Using connection String from environment variable");
+                connString = envConnString;
+            }
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-            builder.Services.AddDbContext<SnapCrateDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("ConnStr")));
+            builder.Services.AddDbContext<SnapCrateDbContext>(options => options.UseSqlServer(connString));
             builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<SnapCrateDbContext>()
     .AddDefaultTokenProviders();
