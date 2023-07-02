@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using snapcrateBackend.Model;
 
 
 namespace snapcrateBackend.Auth
@@ -14,5 +15,6 @@ namespace snapcrateBackend.Auth
         {
             base.OnModelCreating(builder);
         }
+        public DbSet<snapcrateBackend.Model.FolderModel>? FolderModel { get; set; }
     }
 }
