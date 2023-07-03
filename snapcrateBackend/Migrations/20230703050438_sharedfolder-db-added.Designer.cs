@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using snapcrateBackend.Auth;
 
@@ -11,9 +12,10 @@ using snapcrateBackend.Auth;
 namespace snapcrateBackend.Migrations
 {
     [DbContext(typeof(SnapCrateDbContext))]
-    partial class SnapCrateDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230703050438_sharedfolder-db-added")]
+    partial class sharedfolderdbadded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

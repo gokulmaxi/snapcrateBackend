@@ -16,5 +16,6 @@ namespace snapcrateBackend.Auth
             base.OnModelCreating(builder);
         }
         public DbSet<snapcrateBackend.Model.FolderModel>? FolderModel { get; set; }
+        public DbSet<snapcrateBackend.Model.SharedFolders>? SharedFolders { get; set; }
     }
 }

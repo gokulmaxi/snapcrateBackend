@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using snapcrateBackend.Auth;
+using snapcrateBackend.Model;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -24,6 +26,21 @@ namespace snapcrateBackend.Controllers
         public String Index()
         {
             return "Hello"; 
+        }
+        [HttpGet]
+        [Route("users")]
+        public async Task<ActionResult<IEnumerable<UserData>>>  Users()
+        {
+            var users = await _userManager.Users
+       .Select(u => new UserData 
+       {
+           Id = u.Id,
+           UserName = u.UserName,
+           Email = u.Email
+       })
+       .ToListAsync();
+
+            return Ok(users);
         }
         [HttpPost]
         [Route("login")]
