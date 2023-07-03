@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,30 +14,30 @@ namespace snapcrateBackend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class SharedFolderController : ControllerBase
     {
         private readonly SnapCrateDbContext _context;
         private readonly UserManager<IdentityUser> _userManager;
 
-        public SharedFolderController(SnapCrateDbContext context,UserManager<IdentityUser> userManager)
+        public SharedFolderController(SnapCrateDbContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
             _userManager = userManager;
         }
 
         // GET: api/SharedFolder
-        [Route("ByUser/{userName}")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<SharedFolders>>> GetSharedFolders(string userName)
+        public async Task<ActionResult<IEnumerable<SharedFolders>>> GetSharedFolders()
         {
-          if (_context.SharedFolders == null)
-          {
-              return NotFound();
-          }
+            if (_context.SharedFolders == null)
+            {
+                return NotFound();
+            }
             var sharedFolders = await _context.SharedFolders.
                 Include(d => d.User)
                 .Include(d => d.Folder)
-                .Where(d => d.User.UserName == userName)
+                .Where(d => d.User.UserName == User.Identity.Name)
                 .ToListAsync();
             if (sharedFolders == null)
             {
@@ -51,22 +52,22 @@ namespace snapcrateBackend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SharedFolders>>> GetSharedFolders(int id)
         {
-          if (_context.SharedFolders == null)
-          {
-              return NotFound();
-          }
-            var sharedFolders = await _context.SharedFolders.
+            if (_context.SharedFolders == null)
+            {
+                return NotFound();
+            }
+            var sharedFolderUsers = await _context.SharedFolders.
                 Include(d => d.User)
                 .Include(d => d.Folder)
                 .Where(d => d.Folder.Id == id)
                 .ToListAsync();
 
-            if (sharedFolders == null)
+            if (sharedFolderUsers == null)
             {
                 return NotFound();
             }
 
-            return sharedFolders;
+            return sharedFolderUsers;
         }
 
         // PUT: api/SharedFolder/5
@@ -74,8 +75,8 @@ namespace snapcrateBackend.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutSharedFolders(int id, bool enableEditing)
         {
-            var sharedFolders =await _context.SharedFolders.FindAsync(id);
-            if(sharedFolders == null)
+            var sharedFolders = await _context.SharedFolders.FindAsync(id);
+            if (sharedFolders == null)
             {
                 return NotFound();
             }
