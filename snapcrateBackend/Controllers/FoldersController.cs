@@ -14,7 +14,7 @@ namespace snapcrateBackend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class FoldersController : ControllerBase
     {
         private readonly SnapCrateDbContext _context;
@@ -41,16 +41,15 @@ namespace snapcrateBackend.Controllers
                 Where(d => d.User == user)
                 .ToListAsync();
         }
-        // REVIEW Is this api really required
         // GET: api/Folders/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<FolderModel>> GetFolderModel(int id)
+        public async Task<ActionResult<List<ImageModel>>> GetFolderImages(int id)
         {
-          if (_context.FolderModel == null)
+          if (_context.ImageModels== null)
           {
               return NotFound();
           }
-            var folderModel = await _context.FolderModel.FindAsync(id);
+            var folderModel = await _context.ImageModels.Where(d=>d.folder.Id==id).ToListAsync();
 
             if (folderModel == null)
             {

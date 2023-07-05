@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using snapcrateBackend.Auth;
 using snapcrateBackend.Helpers;
 using snapcrateBackend.Model;
 
@@ -11,25 +13,35 @@ namespace snapcrateBackend.Controllers
     public class ImagesController : ControllerBase
     {
         private readonly AzureStorageConfig storageConfig = null;
+                private readonly SnapCrateDbContext _context;
 
-        public ImagesController(IOptions<AzureStorageConfig> config)
+
+        public ImagesController(SnapCrateDbContext context,IOptions<AzureStorageConfig> config)
         {
             storageConfig = config.Value;
+            _context = context;
+
         }
 
-        [HttpGet]
-        public String Index()
-        {
-            return storageConfig.AccountName; 
-        }
         // POST /api/images/upload
         [HttpPost("[action]")]
-        public async Task<IActionResult> Upload(ICollection<IFormFile> files)
+        public async Task<IActionResult> Upload([FromForm]int folderId,ICollection<IFormFile> files)
         {
             bool isUploaded = false;
 
             try
             {
+                if (_context.FolderModel == null)
+                {
+                    return NotFound();
+                }
+                var folderModel = await _context.FolderModel.Include(d=>d.User).FirstAsync(d=>d.Id==folderId);
+
+                if (folderModel == null)
+                {
+                    return NotFound();
+                }
+
                 if (files.Count == 0)
                     return BadRequest("No files received from the upload");
 
@@ -38,6 +50,7 @@ namespace snapcrateBackend.Controllers
 
                 if (storageConfig.ImageContainer == string.Empty)
                     return BadRequest("Please provide a name for your image container in the azure blob storage");
+                var imageModel = new ImageModel();
 
                 foreach (var formFile in files)
                 {
@@ -47,7 +60,19 @@ namespace snapcrateBackend.Controllers
                         {
                             using (Stream stream = formFile.OpenReadStream())
                             {
-                                isUploaded = await StorageHelper.UploadFileToStorage(stream, formFile.FileName, storageConfig);
+                                var imageUri = "https://" +
+                                      storageConfig.AccountName +
+                                      ".blob.core.windows.net/" +
+                                      storageConfig.ImageContainer + "/" + folderModel.User.NormalizedUserName + "/" + folderModel.Name +
+                                      "/" + formFile.FileName;
+                                imageModel.name = formFile.FileName;
+                                imageModel.imageUrl = imageUri;
+                                imageModel.thumbnailUrl = imageUri.Replace(storageConfig.ImageContainer, "thumbnails");
+                                imageModel.folder = folderModel;
+                                isUploaded = await StorageHelper.UploadFileToStorage(stream, formFile.FileName, storageConfig, imageModel);
+                                await _context.ImageModels.AddAsync(imageModel);
+                                await _context.SaveChangesAsync();
+
                             }
                         }
                     }

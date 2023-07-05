@@ -21,14 +21,11 @@ namespace snapcrateBackend.Helpers
         }
 
         public static async Task<bool> UploadFileToStorage(Stream fileStream, string fileName,
-                                                            AzureStorageConfig _storageConfig)
+                                                            AzureStorageConfig _storageConfig,ImageModel imageData)
         {
+
             // Create a URI to the blob
-            Uri blobUri = new Uri("https://" +
-                                  _storageConfig.AccountName +
-                                  ".blob.core.windows.net/" +
-                                  _storageConfig.ImageContainer +
-                                  "/" + fileName);
+            Uri blobUri = new Uri(imageData.imageUrl);
 
             // Create StorageSharedKeyCredentials object by reading
             // the values from the configuration (appsettings.json)
