@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using snapcrateBackend.Auth;
+using snapcrateBackend.Model;
 using System.Text;
 
 namespace snapcrateBackend
@@ -23,6 +24,7 @@ namespace snapcrateBackend
                 connString = envConnString;
             }
             builder.Services.AddControllers();
+            builder.Services.Configure<AzureStorageConfig>(configuration.GetSection("AzureStorageConfig"));
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
