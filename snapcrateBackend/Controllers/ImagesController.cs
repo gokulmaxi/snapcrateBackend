@@ -118,6 +118,25 @@ namespace snapcrateBackend.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteSharedFolders(int id)
+        {
+            if (_context.ImageModels == null)
+            {
+                return NotFound();
+            }
+            var imageData = await _context.ImageModels.FindAsync(id);
+            if (imageData == null)
+            {
+                return NotFound();
+            }
+            _context.ImageModels.Remove(imageData);
+            
+            await _context.SaveChangesAsync();
+
+            await StorageHelper.DeleteFileFromStorage(storageConfig, imageData);
+            return NoContent();
+        }
     }
 }
 

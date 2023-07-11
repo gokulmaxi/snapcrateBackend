@@ -41,6 +41,28 @@ namespace snapcrateBackend.Helpers
             return await Task.FromResult(true);
         }
 
+        public static async Task<bool> DeleteFileFromStorage(AzureStorageConfig _storageConfig,ImageModel imageData)
+        {
+
+            // Create a URI to the blob
+            Uri imageBlobUri = new Uri(imageData.imageUrl);
+            Uri thumnailBlobUri = new Uri(imageData.imageUrl);
+
+            // Create StorageSharedKeyCredentials object by reading
+            // the values from the configuration (appsettings.json)
+            StorageSharedKeyCredential storageCredentials =
+                new StorageSharedKeyCredential(_storageConfig.AccountName, _storageConfig.AccountKey);
+
+            // Create the blob clients.
+            BlobClient imageBlobClient = new BlobClient(imageBlobUri, storageCredentials);
+            BlobClient thumnailBlobClient = new BlobClient(thumnailBlobUri, storageCredentials);
+
+            // Upload the file
+            await imageBlobClient.DeleteIfExistsAsync();
+            await thumnailBlobClient.DeleteIfExistsAsync();
+
+            return await Task.FromResult(true);
+        }
         public static async Task<List<string>> GetThumbNailUrls(AzureStorageConfig _storageConfig)
         {
             List<string> thumbnailUrls = new List<string>();
